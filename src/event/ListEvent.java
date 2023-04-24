@@ -1,0 +1,37 @@
+
+package event;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import process.ListProcess;
+import process.ListStudent;
+import view.ListPanel;
+
+public class ListEvent implements ActionListener {
+
+    private ListPanel ListPanel;
+    private ListProcess listProcess;
+
+    public ListEvent(ListPanel ListPanel, ListProcess listProcess) {
+        this.ListPanel = ListPanel;
+        this.listProcess = listProcess;
+    }
+
+    
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String src = e.getActionCommand();
+        switch (src) {
+            case "Xuất ra file" -> {
+                System.out.println("Xuất");
+            }
+            case "Lưu vào DB" -> System.out.println("Lưu");
+            case "Sắp xếp" -> {
+                listProcess.sortStudentByMark(ListStudent.listStudents);
+            }
+            default -> throw new AssertionError();
+        }
+    }
+    
+}
