@@ -1,5 +1,6 @@
 package xml;
 
+import entities.ListStudent;
 import entities.Student;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -11,6 +12,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -24,60 +26,59 @@ public class XMLData {
 
 	public static final String xmlPath = "output.xml";
 
-	public static void writeXML() {
+	public static void writeXML(ArrayList<Student> listStudents) {
 		try {
-			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+			DocumentBuilderFactory documentBuilderFactor = DocumentBuilderFactory.newInstance();
+			DocumentBuilder documentBuilder = documentBuilderFactor.newDocumentBuilder();
 			Document document = documentBuilder.newDocument();
 
-			// create new root
-//			Element elementRoot = document.createElement("students");
-			Element elementRoot = (Element) document.getElementsByTagName("students").item(0);
+			Element root = document.createElement("class");
+			document.appendChild(root);
 
-			// add element to document
-			document.appendChild(elementRoot);
+			for (Student student : listStudents) {
+				Element studentElement = document.createElement("student");
+				root.appendChild(studentElement);
 
-			// create student element
-			Element studentElement = document.createElement("student");
-			elementRoot.appendChild(studentElement);
+				Element nameStudents = document.createElement("name");
+				nameStudents.appendChild(document.createTextNode(student.getName()));
+				studentElement.appendChild(nameStudents);
 
-			// add info for student
-			Element nameStudent = document.createElement("name");
-			nameStudent.appendChild(document.createTextNode("Ngô Thanh Đạt"));
-			studentElement.appendChild(nameStudent);
-			Element schoolName = document.createElement("school-name");
-			schoolName.appendChild(document.createTextNode("VKU"));
-			studentElement.appendChild(schoolName);
-			Element gender = document.createElement("gender");
-			gender.appendChild(document.createTextNode("Nam"));
-			studentElement.appendChild(gender);
-			Element age = document.createElement("age");
-			age.appendChild(document.createTextNode("19"));
-			studentElement.appendChild(age);
-			Element mark = document.createElement("mark");
-			mark.appendChild(document.createTextNode("10"));
-			studentElement.appendChild(mark);
+				Element nameClass = document.createElement("school");
+				nameClass.appendChild(document.createTextNode(student.getNameSchool()));
+				studentElement.appendChild(nameClass);
 
+				Element gender = document.createElement("gender");
+				gender.appendChild(document.createTextNode(student.getGender()));
+				studentElement.appendChild(gender);
+
+				Element age = document.createElement("age");
+				age.appendChild(document.createTextNode(String.valueOf(student.getAge())));
+				studentElement.appendChild(age);
+
+				Element mark = document.createElement("mark");
+				mark.appendChild(document.createTextNode(String.valueOf(student.getMark())));
+				studentElement.appendChild(mark);
+
+			}
 			// write file
 
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
 			DOMSource source = new DOMSource(document);
-			StreamResult streamResult = new StreamResult(new FileWriter(xmlPath, true));
+			StreamResult streamResult = new StreamResult(new File(xmlPath));
 
 			System.out.println("Done");
 
 			transformer.transform(source, streamResult);
 
-
-		} catch (ParserConfigurationException | TransformerException | IOException e) {
+		} catch (ParserConfigurationException | TransformerException e) {
 			throw new RuntimeException(e);
 		}
 
 	}
 
 	public static ArrayList<Student> readXML() {
-		ArrayList<Student> list = new ArrayList<>();
+		ArrayList<Student> listStudent = new ArrayList<Student>();
 
 		File file = new File(xmlPath);
 
@@ -89,21 +90,37 @@ public class XMLData {
 			Document document = documentBuilder.parse(file);
 			document.getDocumentElement().normalize();
 			NodeList listNode = document.getElementsByTagName("student");
-			for(int i = 0; i < listNode.getLength(); i++) {
+			for (int i = 0; i < listNode.getLength(); i++) {
 				Node node = listNode.item(i);
-				System.out.println("Element: " + node.getNodeName());
-				if(node.getNodeType() == Node.ELEMENT_NODE) {
+				if (node.getNodeType() == Node.ELEMENT_NODE) {
 					Element element = (Element) node;
-					System.out.println("Name: " + element.getElementsByTagName("name").item(0).getTextContent());
+					Element name = (Element) element.getElementsByTagName("name").item(0);
+					Element school = (Element) element.getElementsByTagName("school").item(0);
+					Element gender = (Element) element.getElementsByTagName("gender").item(0);
+					Element age = (Element) element.getElementsByTagName("age").item(0);
+					Element mark = (Element) element.getElementsByTagName("mark").item(0);
+
+					Student student = new Student(
+							name.getTextContent(),
+							school.getTextContent(),
+							gender.getTextContent(),
+							Integer.parseInt(age.getTextContent()),
+							Double.parseDouble(mark.getTextContent())
+					);
+					System.out.println(student.getName());
+					listStudent.add(student);
 				}
 			}
 		} catch (ParserConfigurationException | IOException | SAXException e) {
 			e.printStackTrace();
 		}
 
-		return list;
+		return listStudent;
 
 	}
 
+	public static void main(String[] args) {
+		writeXML(ListStudent.listStudents);
+	}
 
 }

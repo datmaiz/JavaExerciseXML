@@ -1,6 +1,9 @@
 package process;
+import dao.StudentDAO;
+import entities.ListStudent;
 import entities.Student;
 import view.ListPanel;
+import xml.XMLData;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
@@ -15,11 +18,13 @@ public class ListProcess {
     }
     
     public void exportToFile() {
-        
+        XMLData.writeXML(ListStudent.listStudents);
     }
     
-    public void saveToDatabase() {
-        
+    public void saveToDatabase(ArrayList<Student> listStudents) {
+        for(Student s : listStudents) {
+            StudentDAO.addStudent(s);
+        }
     }
 
     public void sortStudentByMark(ArrayList<Student> list) {

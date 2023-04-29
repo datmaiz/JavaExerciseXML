@@ -24,9 +24,9 @@ public class ListEvent implements ActionListener {
         String src = e.getActionCommand();
         switch (src) {
             case "Xuất ra file" -> {
-                System.out.println("Xuất");
+                listProcess.exportToFile();
             }
-            case "Lưu vào DB" -> System.out.println("Lưu");
+            case "Lưu vào DB" -> listProcess.saveToDatabase(ListStudent.listStudents);
             case "Sắp xếp" -> {
                 listProcess.sortStudentByMark(ListStudent.listStudents);
             }
